@@ -1,6 +1,6 @@
 use bevy_math::*;
 use bevy_render::{
-    mesh::{Mesh, VertexAttribute, VertexAttributeValues},
+    mesh::{Mesh, Indices, VertexAttribute, VertexAttributeValues},
     pipeline::PrimitiveTopology,
 };
 
@@ -73,7 +73,7 @@ impl From<ShadedQuad> for Mesh {
                     values: VertexAttributeValues::Float4(tangents),
                 },
             ],
-            indices: Some(indices),
+            indices: Some(Indices::U32(indices)),
         }
     }
 }

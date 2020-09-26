@@ -1,6 +1,6 @@
 [package]
 name = "bevy_shaded_sprite"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2018"
 authors = ["Scott Abbott <scott.abbott.a@gmail.com"]
 description = "Provides sprite functionality with normal map shading."

@@ -7,7 +7,7 @@ use bevy_render::{
     prelude::Draw,
     render_graph::base::MainPass,
 };
-use bevy_transform::prelude::{Rotation, Scale, Transform, Translation};
+use bevy_transform::prelude::{GlobalTransform, Transform};
 
 /// A Bundle of components for drawing a single sprite from a sprite sheet (also referred
 /// to as a `ShadedAtlas`)
@@ -23,9 +23,7 @@ pub struct ShadedSheetComponents {
     pub main_pass: MainPass,
     pub mesh: Handle<Mesh>, // TODO: maybe abstract this out
     pub transform: Transform,
-    pub translation: Translation,
-    pub rotation: Rotation,
-    pub scale: Scale,
+    pub global_transform: GlobalTransform,
 }
 
 impl Default for ShadedSheetComponents {
@@ -58,9 +56,7 @@ impl Default for ShadedSheetComponents {
             sprite: Default::default(),
             shaded_atlas: Default::default(),
             transform: Default::default(),
-            translation: Default::default(),
-            rotation: Default::default(),
-            scale: Scale(0.05),
+            global_transform: Default::default(),
         }
     }
 }
