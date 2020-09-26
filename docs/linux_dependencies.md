@@ -6,12 +6,12 @@ If you don't see your distro present in the list, feel free to add the instructi
 
 ## Ubuntu 20.04
 ```bash
-sudo apt-get install libx11-dev libasound2-dev
+sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
 ```
 
 ## Fedora 32
 ```bash
-sudo dnf install gcc-c++ libX11-devel alsa-lib-devel
+sudo dnf install gcc-c++ libX11-devel alsa-lib-devel systemd-devel
 ```
 
 ## Arch / Manjaro
@@ -39,6 +39,31 @@ fn main() {
 The following packages are known to provide the dependencies required to run a bevy project. They can be installed globally or via nix-shell.
 
 `nix-shell -p pkgconfig x11 xorg.libXcursor xorg.libXrandr xorg.libXi vulkan-tools lutris vulkan-headers vulkan-loader vulkan-validation-layers alsaLib`
+
+Alternatively, you can copy the following code block and create a file called `shell.nix`. You can now enter nix-shell just by running `nix-shell`.
+
+```nix
+# shell.nix
+
+{ pkgs ? import <nixpkgs> { } }:
+
+pkgs.mkShell {
+  buildInputs = [
+    pkgs.alsaLib
+    pkgs.lutris
+    pkgs.pkgconfig
+    pkgs.vulkan-headers
+    pkgs.vulkan-loader
+    pkgs.vulkan-tools
+    pkgs.vulkan-validation-layers
+    pkgs.x11
+    pkgs.xorg.libXcursor
+    pkgs.xorg.libXi
+    pkgs.xorg.libXrandr
+  ];
+}
+
+```
 
 At this point, projects should successfully compile but fail on execution. This is due to `glslang_validator` which, unfortunately, needs to have it's binary patched to link correctly. This is a known issue and there are plans to remove this dependency.
 

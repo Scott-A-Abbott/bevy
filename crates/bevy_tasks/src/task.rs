@@ -4,7 +4,7 @@ use std::{
     task::{Context, Poll},
 };
 
-/// Wraps `multitask::Task`, a spawned future.
+/// Wraps `async_executor::Task`, a spawned future.
 ///
 /// Tasks are also futures themselves and yield the output of the spawned future.
 ///
@@ -12,11 +12,16 @@ use std::{
 /// more gracefully and wait until it stops running, use the [`cancel()`][Task::cancel()] method.
 ///
 /// Tasks that panic get immediately canceled. Awaiting a canceled task also causes a panic.
-/// Wraps multitask::Task
-pub struct Task<T>(multitask::Task<T>);
+/// Wraps async_executor::Task
+pub struct Task<T>(async_executor::Task<T>);
 
 impl<T> Task<T> {
-    /// Detaches the task to let it keep running in the background. See `multitask::Task::detach`
+    /// Creates a new task from a given async_executor::Task
+    pub fn new(task: async_executor::Task<T>) -> Self {
+        Self(task)
+    }
+
+    /// Detaches the task to let it keep running in the background. See `async_executor::Task::detach`
     pub fn detach(self) {
         self.0.detach();
     }
@@ -29,7 +34,7 @@ impl<T> Task<T> {
     /// While it's possible to simply drop the [`Task`] to cancel it, this is a cleaner way of
     /// canceling because it also waits for the task to stop running.
     ///
-    /// See `multitask::Task::cancel`
+    /// See `async_executor::Task::cancel`
     pub async fn cancel(self) -> Option<T> {
         self.0.cancel().await
     }
@@ -38,8 +43,7 @@ impl<T> Task<T> {
 impl<T> Future for Task<T> {
     type Output = T;
 
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        // Safe because Task is pinned and contains multitask::Task by value
-        unsafe { self.map_unchecked_mut(|x| &mut x.0).poll(cx) }
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        Pin::new(&mut self.0).poll(cx)
     }
 }

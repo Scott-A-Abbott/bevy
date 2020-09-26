@@ -38,6 +38,10 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev
         if: ${{ runner.os == 'Linux' }}
 
+      - name: Install udev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libudev-dev
+        if: ${{ runner.os == 'Linux' }}
+
       - name: Build
         run: cargo check
         env:
@@ -50,6 +54,13 @@ jobs:
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-C debuginfo=0 -D warnings"
+
+      - name: Check wasm
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          target: wasm32-unknown-unknown
+          override: true
 
   clean:
     runs-on: ubuntu-latest
@@ -65,15 +76,13 @@ jobs:
       - name: Install alsa
         run: sudo apt-get install --no-install-recommends libasound2-dev
 
+      - name: Install udev
+        run: sudo apt-get install --no-install-recommends libudev-dev
+
       - name: Check the format
         run: cargo +nightly fmt --all -- --check
 
       # type complexity must be ignored because we use huge templates for queries
+      # -A clippy::manual-strip: strip_prefix support was added in 1.45. we want to support earlier rust versions  
       - name: Run clippy
-        run: >
-          cargo +nightly clippy
-          --all-targets
-          --all-features
-          --
-          -D warnings
-          -A clippy::type_complexity
+        run: cargo clippy --all-targets --all-features -- -D warnings -A clippy::type_complexity -A clippy::manual-strip

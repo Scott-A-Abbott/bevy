@@ -7,3 +7,18 @@ pub use crate::{
 
 #[cfg(feature = "bevy_audio")]
 pub use crate::audio::prelude::*;
+
+#[cfg(feature = "bevy_pbr")]
+pub use crate::pbr::prelude::*;
+
+#[cfg(feature = "bevy_render")]
+pub use crate::render::prelude::*;
+
+#[cfg(feature = "bevy_sprite")]
+pub use crate::sprite::prelude::*;
+
+#[cfg(feature = "bevy_text")]
+pub use crate::text::prelude::*;
+
+#[cfg(feature = "bevy_ui")]
+pub use crate::ui::prelude::*;

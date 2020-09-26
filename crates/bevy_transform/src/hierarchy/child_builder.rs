@@ -1,4 +1,4 @@
-use crate::prelude::{Children, LocalTransform, Parent, PreviousParent};
+use crate::prelude::{Children, Parent, PreviousParent};
 use bevy_ecs::{Commands, CommandsInternal, Component, DynamicBundle, Entity, WorldWriter};
 use smallvec::SmallVec;
 
@@ -14,11 +14,7 @@ impl WorldWriter for InsertChildren {
             world
                 .insert(
                     *child,
-                    (
-                        Parent(self.parent),
-                        PreviousParent(Some(self.parent)),
-                        LocalTransform::default(),
-                    ),
+                    (Parent(self.parent), PreviousParent(Some(self.parent))),
                 )
                 .unwrap();
         }
@@ -55,11 +51,7 @@ impl WorldWriter for PushChildren {
             world
                 .insert(
                     *child,
-                    (
-                        Parent(self.parent),
-                        PreviousParent(Some(self.parent)),
-                        LocalTransform::default(),
-                    ),
+                    (Parent(self.parent), PreviousParent(Some(self.parent))),
                 )
                 .unwrap();
         }
@@ -82,16 +74,10 @@ impl WorldWriter for PushChildren {
 
 impl<'a> ChildBuilder<'a> {
     pub fn spawn(&mut self, components: impl DynamicBundle + Send + Sync + 'static) -> &mut Self {
-        self.spawn_as_entity(Entity::new(), components)
-    }
-
-    pub fn spawn_as_entity(
-        &mut self,
-        entity: Entity,
-        components: impl DynamicBundle + Send + Sync + 'static,
-    ) -> &mut Self {
-        self.commands.spawn_as_entity(entity, components);
-        self.push_children.children.push(entity);
+        self.commands.spawn(components);
+        self.push_children
+            .children
+            .push(self.commands.current_entity.unwrap());
         self
     }
 
@@ -108,7 +94,7 @@ impl<'a> ChildBuilder<'a> {
         self
     }
 
-    pub fn for_current_entity(&mut self, mut func: impl FnMut(Entity)) -> &mut Self {
+    pub fn for_current_entity(&mut self, func: impl FnOnce(Entity)) -> &mut Self {
         let current_entity = self
             .commands
             .current_entity
@@ -119,13 +105,13 @@ impl<'a> ChildBuilder<'a> {
 }
 
 pub trait BuildChildren {
-    fn with_children(&mut self, f: impl FnMut(&mut ChildBuilder)) -> &mut Self;
+    fn with_children(&mut self, f: impl FnOnce(&mut ChildBuilder)) -> &mut Self;
     fn push_children(&mut self, parent: Entity, children: &[Entity]) -> &mut Self;
     fn insert_children(&mut self, parent: Entity, index: usize, children: &[Entity]) -> &mut Self;
 }
 
 impl BuildChildren for Commands {
-    fn with_children(&mut self, mut parent: impl FnMut(&mut ChildBuilder)) -> &mut Self {
+    fn with_children(&mut self, parent: impl FnOnce(&mut ChildBuilder)) -> &mut Self {
         {
             let mut commands = self.commands.lock();
             let current_entity = commands.current_entity.expect("Cannot add children because the 'current entity' is not set. You should spawn an entity first.");
@@ -173,7 +159,7 @@ impl BuildChildren for Commands {
 }
 
 impl<'a> BuildChildren for ChildBuilder<'a> {
-    fn with_children(&mut self, mut spawn_children: impl FnMut(&mut ChildBuilder)) -> &mut Self {
+    fn with_children(&mut self, spawn_children: impl FnOnce(&mut ChildBuilder)) -> &mut Self {
         let current_entity = self.commands.current_entity.expect("Cannot add children because the 'current entity' is not set. You should spawn an entity first.");
         self.commands.current_entity = None;
         let push_children = {
@@ -215,7 +201,7 @@ impl<'a> BuildChildren for ChildBuilder<'a> {
 #[cfg(test)]
 mod tests {
     use super::BuildChildren;
-    use crate::prelude::{Children, LocalTransform, Parent, PreviousParent};
+    use crate::prelude::{Children, Parent, PreviousParent};
     use bevy_ecs::{Commands, Entity, Resources, World};
     use smallvec::{smallvec, SmallVec};
 
@@ -224,6 +210,7 @@ mod tests {
         let mut world = World::default();
         let mut resources = Resources::default();
         let mut commands = Commands::default();
+        commands.set_entity_reserver(world.get_entity_reserver());
 
         let mut parent = None;
         let mut child1 = None;
@@ -261,9 +248,6 @@ mod tests {
             *world.get::<PreviousParent>(child2).unwrap(),
             PreviousParent(Some(parent))
         );
-
-        assert!(world.get::<LocalTransform>(child1).is_ok());
-        assert!(world.get::<LocalTransform>(child2).is_ok());
     }
 
     #[test]
@@ -301,9 +285,6 @@ mod tests {
             PreviousParent(Some(parent))
         );
 
-        assert!(world.get::<LocalTransform>(child1).is_ok());
-        assert!(world.get::<LocalTransform>(child2).is_ok());
-
         commands.insert_children(parent, 1, &entities[3..]);
         commands.apply(&mut world, &mut resources);
 
@@ -322,8 +303,5 @@ mod tests {
             *world.get::<PreviousParent>(child4).unwrap(),
             PreviousParent(Some(parent))
         );
-
-        assert!(world.get::<LocalTransform>(child3).is_ok());
-        assert!(world.get::<LocalTransform>(child4).is_ok());
     }
 }
