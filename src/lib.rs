@@ -71,3 +71,6 @@ pub use bevy_winit as winit;
 
 #[cfg(feature = "bevy_wgpu")]
 pub use bevy_wgpu as wgpu;
+
+//custom mods
+pub use bevy_shaded_sprite as shaded_sprite;

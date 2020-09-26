@@ -75,6 +75,9 @@ bevy_gltf = { path = "crates/bevy_gltf", optional = true, version = "0.1" }
 bevy_wgpu = { path = "crates/bevy_wgpu", optional = true, version = "0.1" }
 bevy_winit = { path = "crates/bevy_winit", optional = true, version = "0.1" }
 
+# bevy custom
+bevy_shaded_sprite = { path = "crates/bevy_shaded_sprite", version = "0.1" }
+
 [dev-dependencies]
 rand = "0.7.2"
 serde = { version = "1", features = ["derive"]}
