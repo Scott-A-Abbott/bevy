@@ -10,11 +10,8 @@ pub struct ShadedQuad {
 }
 
 impl ShadedQuad {
-    pub fn new(size: Vec2) -> Self {
-        Self {
-            x: size.x(),
-            y: size.y(),
-        }
+    pub fn new(x: f32, y: f32) -> Self {
+        Self {x, y}
     }
 }
 

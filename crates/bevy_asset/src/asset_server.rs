@@ -172,7 +172,7 @@ impl AssetServer {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    fn get_root_path(&self) -> Result<PathBuf, AssetServerError> {
+    pub fn get_root_path(&self) -> Result<PathBuf, AssetServerError> {
         if let Ok(manifest_dir) = std::env::var("CARGO_MANIFEST_DIR") {
             Ok(PathBuf::from(manifest_dir))
         } else {
@@ -187,7 +187,7 @@ impl AssetServer {
     }
 
     #[cfg(target_arch = "wasm32")]
-    fn get_root_path(&self) -> Result<PathBuf, AssetServerError> {
+    pub fn get_root_path(&self) -> Result<PathBuf, AssetServerError> {
         Ok(PathBuf::from("/"))
     }
 

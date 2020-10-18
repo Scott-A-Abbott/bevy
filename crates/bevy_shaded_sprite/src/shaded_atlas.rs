@@ -1,14 +1,15 @@
 use crate::Rect;
 use bevy_asset::Handle;
-use bevy_core::Bytes;
+use bevy_core::Byteable;
 use bevy_math::Vec2;
 use bevy_render::{
     color::Color,
     renderer::{RenderResource, RenderResources},
     texture::Texture,
+    shader::ShaderDefs,
 };
 /// An atlas containing multiple textures (like a spritesheet or a tilemap)
-#[derive(RenderResources)]
+#[derive(RenderResources, Debug)]
 pub struct ShadedAtlas {
     /// The handle to the texture in which the sprites are stored
     pub albedo: Handle<Texture>,
@@ -23,18 +24,21 @@ pub struct ShadedAtlas {
 
 // NOTE: cannot do `unsafe impl Byteable` here because Vec3 takes up the space of a Vec4. If/when glam changes this we can swap out
 // Bytes for Byteable as a micro-optimization. https://github.com/bitshifter/glam-rs/issues/36
-#[derive(Bytes, RenderResources, RenderResource)]
+#[derive(RenderResources, RenderResource, ShaderDefs, Debug)]
 #[render_resources(from_self)]
 pub struct ShadedAtlasSprite {
     pub color: Color,
     pub index: u32,
+    pub flip: bool,
 }
+unsafe impl Byteable for ShadedAtlasSprite {}
 
 impl Default for ShadedAtlasSprite {
     fn default() -> Self {
         Self {
             index: 0,
             color: Color::WHITE,
+            flip: false,
         }
     }
 }

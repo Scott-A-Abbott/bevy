@@ -26,15 +26,27 @@ layout(set = 2, binding = 3) uniform sampler ShadedAtlas_albedo_sampler;
 layout(set = 2, binding = 4) uniform texture2D ShadedAtlas_normal_map;
 layout(set = 2, binding = 5) uniform sampler ShadedAtlas_normal_map_sampler;
 
+layout(set = 3, binding = 1) uniform ShadedAtlasSprite {
+    vec4 ShadedAtlasSprite_color;
+    uint ShadedAtlasSprite_index;
+    bool ShadedAtlasSprite_flip;
+};
+
 void main() {
+    vec2 uv = v_Uv;
+
+    if (ShadedAtlasSprite_flip) {
+        uv = vec2(1.0 - uv.x, uv.y);
+    }
+
     vec3 ambient = vec3(0.05, 0.05, 0.05);
     vec3 tangent = v_Tangent.xyz;
     vec4 albedo = v_Color * texture(
         sampler2D(ShadedAtlas_albedo, ShadedAtlas_albedo_sampler),
-        v_Uv);
+        uv);
     vec3 normal_map = texture(
         sampler2D(ShadedAtlas_normal_map, ShadedAtlas_normal_map_sampler),
-        v_Uv).rgb;
+        uv).rgb;
     normal_map = normal_map * 2 - 1;
     
     vec3 vertex_normal = normalize(v_Normal);
@@ -50,7 +62,13 @@ void main() {
     vec3 color = ambient;
     for (int i = 0; i < int(NumLights.x) && i < MAX_LIGHTS; ++i) {
         Light light = SceneLights[i];
-        vec3 light_dir = normalize(light.pos.xyz);
+        vec3 light_pos = light.pos.xyz;
+
+        if (ShadedAtlasSprite_flip) {
+            light_pos = vec3(-light_pos.x, light_pos.yz);
+        }
+
+        vec3 light_dir = normalize(light_pos);
         float light_dot_normal = dot(light_dir, normal_map);
         float diffuse = max(light_dot_normal, 0.0);
         diffuse = smoothstep(0.005, 0.01, diffuse);

@@ -16,7 +16,6 @@ pub mod prelude {
 
 use bevy_app::prelude::*;
 use bevy_asset::{AddAsset, Assets, Handle};
-use bevy_math::Vec2;
 use bevy_render::{mesh::Mesh, render_graph::RenderGraph};
 
 #[derive(Default)]
@@ -35,8 +34,7 @@ impl Plugin for ShadedSpritePlugin {
         let mut meshes = resources.get_mut::<Assets<Mesh>>().unwrap();
         meshes.set(
             QUAD_HANDLE,
-            // Use a flipped quad because the camera is facing "forward" but quads should face backward
-            Mesh::from(ShadedQuad::new(Vec2::new(1.0, 1.0))),
+            Mesh::from(ShadedQuad::new(1.0, 1.0)),
         );
     }
 }
