@@ -68,9 +68,9 @@ void main() {
             light_pos = vec3(-light_pos.x, light_pos.yz);
         }
 
-        vec3 light_dir = normalize(light_pos);
-        float light_dot_normal = dot(light_dir, normal_map);
-        float diffuse = max(light_dot_normal, 0.0);
+        vec3 light_dir = normalize(light_pos - v_Position);
+        float light_dot_normal = dot(normal_map, light_dir);
+        float diffuse = max(0.0, light_dot_normal);
         diffuse = smoothstep(0.005, 0.01, diffuse);
         color += diffuse * light.color.xyz;
     }

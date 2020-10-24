@@ -52,8 +52,8 @@ void main() {
     v_Uv = (atlas_positions[gl_VertexIndex] + vec2(0.01, 0.01)) / AtlasSize;
     v_Color = ShadedAtlasSprite_color;
     v_Tangent = Vertex_Tangent;
-    v_Position = ceil(vec3(Vertex_Position.xy * sprite_dimensions, Vertex_Position.z));
+    v_Position = (SpriteTransform * vec4(Vertex_Position.xy * sprite_dimensions, Vertex_Position.z, 1.0)).xyz;
     v_Normal = (SpriteTransform * vec4(Vertex_Normal, 1.0)).xyz;
     v_Normal = mat3(SpriteTransform) * Vertex_Normal;
-    gl_Position = ViewProj * SpriteTransform * vec4(v_Position, 1.0);
+    gl_Position = ViewProj * vec4(v_Position, 1.0);
 }
