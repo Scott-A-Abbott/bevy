@@ -1,6 +1,6 @@
 use crate::Rect;
 use bevy_asset::Handle;
-use bevy_core::Byteable;
+use bevy_core::Bytes;
 use bevy_math::Vec2;
 use bevy_render::{
     color::Color,
@@ -24,21 +24,21 @@ pub struct ShadedAtlas {
 
 // NOTE: cannot do `unsafe impl Byteable` here because Vec3 takes up the space of a Vec4. If/when glam changes this we can swap out
 // Bytes for Byteable as a micro-optimization. https://github.com/bitshifter/glam-rs/issues/36
-#[derive(RenderResources, RenderResource, ShaderDefs, Debug)]
+#[derive(Bytes, RenderResources, RenderResource, ShaderDefs, Debug)]
 #[render_resources(from_self)]
 pub struct ShadedAtlasSprite {
     pub color: Color,
     pub index: u32,
-    pub flip: bool,
+    //NOTE: cannot use intuitive bool type; if anything other than a u32 memory equivalent is used, it causes undefined behaviour.
+    pub flip: u32,
 }
-unsafe impl Byteable for ShadedAtlasSprite {}
 
 impl Default for ShadedAtlasSprite {
     fn default() -> Self {
         Self {
             index: 0,
             color: Color::WHITE,
-            flip: false,
+            flip: false.into(),
         }
     }
 }
@@ -49,6 +49,10 @@ impl ShadedAtlasSprite {
             index,
             ..Default::default()
         }
+    }
+
+    pub fn flip(&mut self, flipped: bool) {
+        self.flip = flipped.into();
     }
 }
 

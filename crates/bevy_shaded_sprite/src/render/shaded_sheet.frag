@@ -29,13 +29,13 @@ layout(set = 2, binding = 5) uniform sampler ShadedAtlas_normal_map_sampler;
 layout(set = 3, binding = 1) uniform ShadedAtlasSprite {
     vec4 ShadedAtlasSprite_color;
     uint ShadedAtlasSprite_index;
-    bool ShadedAtlasSprite_flip;
+    uint ShadedAtlasSprite_flip;
 };
 
 void main() {
     vec2 uv = v_Uv;
 
-    if (ShadedAtlasSprite_flip) {
+    if (ShadedAtlasSprite_flip > 0) {
         uv = vec2(1.0 - uv.x, uv.y);
     }
 
@@ -64,7 +64,7 @@ void main() {
         Light light = SceneLights[i];
         vec3 light_pos = light.pos.xyz;
 
-        if (ShadedAtlasSprite_flip) {
+        if (ShadedAtlasSprite_flip > 0) {
             light_pos = vec3(-light_pos.x, light_pos.yz);
         }
 

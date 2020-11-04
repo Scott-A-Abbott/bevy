@@ -37,7 +37,7 @@ layout(set = 3, binding = 0) uniform Transform {
 layout(set = 3, binding = 1) uniform ShadedAtlasSprite {
     vec4 ShadedAtlasSprite_color;
     uint ShadedAtlasSprite_index;
-    bool ShadedAtlasSprite_flip;
+    uint ShadedAtlasSprite_flip;
 };
 
 void main() {
